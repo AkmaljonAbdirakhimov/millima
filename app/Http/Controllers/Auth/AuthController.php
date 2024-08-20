@@ -72,4 +72,14 @@ class AuthController extends BaseController
         $user = Auth::user();
         return $this->sendResponse($user, 'User profile retrieved successfully.');
     }
+
+    /**
+     * Logout api
+     */
+    public function logout(Request $request)
+    {
+        $request->user()->tokens()->delete(); // Revoke all tokens
+
+        return $this->sendResponse([], 'User logged out from all devices successfully.');
+    }
 }

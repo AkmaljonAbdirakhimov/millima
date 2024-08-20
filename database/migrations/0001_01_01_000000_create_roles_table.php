@@ -24,13 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        // Drop the foreign key constraint first, then the column
-        Schema::table('users', function (Blueprint $table) {
-            $table->dropForeign(['role_id']);
-            $table->dropColumn('role_id');
-        });
-
-        // Then drop the roles table
         Schema::dropIfExists('roles');
     }
 };

@@ -1,58 +1,75 @@
 <?php
 
-namespace App\Http\Controllers\Auth;
+namespace App\Http\Controllers\API;
 
-use App\Http\Controllers\Controller;
-use App\Models\User;
 use Illuminate\Http\Request;
+use App\Http\Controllers\API\BaseController as BaseController;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
 
-class AuthController extends Controller
+class AuthController extends BaseController
 {
+    /**
+     * Register api
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function register(Request $request)
     {
-        // Validatsiya qiling
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'phone' => 'required|string|unique:users,phone',
-            'password' => 'required|string|confirmed|min:8',
+        $validator = Validator::make($request->all(), [
+            'name' => 'required',
+            'phone' => 'required|unique:users,phone', // Ensure phone is unique
+            'password' => 'required|min:6',
+            'password_confirmation' => 'required|same:password',
         ]);
 
-        // Foydalanuvchini yaratish
-        $user = User::create([
-            'name' => $request->name,
-            'phone' => $request->phone,
-            'password' => $request->password,
-        ]);
+        if ($validator->fails()) {
+            return $this->sendError('Validation Error.', $validator->errors());
+        }
 
-        // Avtomatik login qilish
-        Auth::login($user);
+        $input = $request->all();
+        $input['password'] = bcrypt($input['password']);
+        $user = User::create($input);
+        $success['token'] = $user->createToken('authToken')->plainTextToken;
+        $success['name'] = $user->name;
 
-        // Token yaratish
-        $token = $user->createToken('authToken')->plainTextToken;
-
-        return response()->json([
-            'message' => 'User registered and logged in successfully!',
-            'user' => $user,
-            'token' => $token
-        ], 201);
+        return $this->sendResponse($success, 'User registered successfully.');
     }
 
+    /**
+     * Login api
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function login(Request $request)
     {
-        $request->validate([
-            'phone' => 'required|string',
-            'password' => 'required|string',
+        $validator = Validator::make($request->all(), [
+            'phone' => 'required', // Validate phone field
+            'password' => 'required',
         ]);
 
-        $credentials = $request->only('phone', 'password');
-
-        if (Auth::attempt($credentials)) {
-            $user = Auth::user();
-            $token = $user->createToken('authToken')->plainTextToken;
-            return response()->json(['token' => $token], 200);
-        } else {
-            return response()->json(['message' => 'Invalid credentials'], 401);
+        if ($validator->fails()) {
+            return $this->sendError('Validation Error.', $validator->errors());
         }
+
+        if (Auth::attempt(['phone' => $request->phone, 'password' => $request->password])) {
+            $user = Auth::user();
+            $success['token'] = $user->createToken('authToken')->plainTextToken;
+            $success['name'] = $user->name;
+
+            return $this->sendResponse($success, 'User login successfully.');
+        } else {
+            return $this->sendError('Unauthorised.', ['error' => 'Unauthorised']);
+        }
+    }
+
+    /**
+     * Get the authenticated User
+     */
+    public function userProfile()
+    {
+        $user = Auth::user();
+        return $this->sendResponse($user, 'User profile retrieved successfully.');
     }
 }

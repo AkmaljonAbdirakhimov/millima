@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\BaseController as BaseController;
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -31,6 +32,13 @@ class AuthController extends BaseController
         $input = $request->all();
         $input['password'] = bcrypt($input['password']);
         $user = User::create($input);
+
+        if (!isset($input['role_id'])) {
+            $input['role_id'] = Role::where('name', 'student')->first()->id;
+        }
+        $user->role()->associate(Role::find($input['role_id']));
+        $user->save();
+
         $success['token'] = $user->createToken('authToken')->plainTextToken;
         $success['name'] = $user->name;
 
@@ -69,8 +77,8 @@ class AuthController extends BaseController
      */
     public function userProfile()
     {
-        $user = Auth::user();
-        return $this->sendResponse($user, 'User profile retrieved successfully.');
+        $user = Auth::user()->load('role');
+        return $this->sendResponse($user->toArray(), 'User profile retrieved successfully.');
     }
 
     /**

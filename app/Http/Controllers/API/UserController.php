@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\Validator;
 
 class UserController extends BaseController
 {
+
+
     /**
      * Display a listing of the users.
      *
@@ -47,6 +49,16 @@ class UserController extends BaseController
 
 
     /**
+     * Get the authenticated User
+     */
+    public function showProfile()
+    {
+        $user = Auth::user()->load('role');
+        return $this->sendResponse($user->toArray(), 'User profile retrieved successfully.');
+    }
+
+
+    /**
      * Update the authenticated user's profile.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -57,7 +69,7 @@ class UserController extends BaseController
         // Validation rules
         $validator = Validator::make($request->all(), [
             'name' => 'sometimes|required|string|max:255',
-            'email' => 'sometimes|required|email|unique:users,email,' . Auth::id(),
+            'email' => 'sometimes|email|unique:users,email,' . Auth::id(),
             'phone' => 'sometimes|required|string|unique:users,phone,' . Auth::id(),
             'photo' => 'sometimes|image|mimes:jpeg,png,jpg,gif,svg|max:512',
         ]);
@@ -87,5 +99,21 @@ class UserController extends BaseController
         $user->update($request->only(['name', 'email', 'phone']));
 
         return $this->sendResponse($user, 'Profile updated successfully.');
+    }
+
+    /**
+     * Retrieve the groups of the authenticated student.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getStudentGroups()
+    {
+        // Load only the groups along with main and assistant teachers for the authenticated student
+        $user = Auth::user()->load(['groups.mainTeacher', 'groups.assistantTeacher']);
+
+        // You can customize the response to return only the group data if desired
+        $groups = $user->groups;
+
+        return $this->sendResponse($groups, 'Student groups retrieved successfully.');
     }
 }

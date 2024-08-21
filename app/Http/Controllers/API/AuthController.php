@@ -73,15 +73,6 @@ class AuthController extends BaseController
     }
 
     /**
-     * Get the authenticated User
-     */
-    public function userProfile()
-    {
-        $user = Auth::user()->load('role');
-        return $this->sendResponse($user->toArray(), 'User profile retrieved successfully.');
-    }
-
-    /**
      * Logout api
      */
     public function logout(Request $request)

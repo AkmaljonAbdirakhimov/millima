@@ -20,7 +20,7 @@ class GroupController extends BaseController
      */
     public function index(Request $request)
     {
-        $query = Group::with(['mainTeacher', 'assistantTeacher', 'users']);
+        $query = Group::with(['mainTeacher', 'assistantTeacher', 'students']);
 
         // Dynamically apply filters
         foreach ($request->all() as $field => $value) {
@@ -85,9 +85,9 @@ class GroupController extends BaseController
         }
 
         // Add students to the group
-        $group->users()->sync($request->students);
+        $group->students()->sync($request->students);
 
-        return $this->sendResponse($group->users, 'Students added to group successfully.');
+        return $this->sendResponse($group->students, 'Students added to group successfully.');
     }
 
     // Admin updates a group (e.g., assigning teachers)

@@ -70,7 +70,7 @@ class GroupController extends BaseController
     public function addStudents(Request $request, $groupId)
     {
         $validator = Validator::make($request->all(), [
-            'students' => 'required|array',
+            'students' => 'nullable|array',
             'students.*' => 'exists:users,id',
         ]);
 
@@ -84,8 +84,14 @@ class GroupController extends BaseController
             return $this->sendError('Group not found.');
         }
 
-        // Add students to the group
-        $group->students()->sync($request->students);
+
+        // Sync students with the group, if students list is provided
+        if ($request->has('students')) {
+            $group->students()->sync($request->students);
+        } else {
+            // Clear all students from the group if an empty list is provided
+            $group->students()->sync([]);
+        }
 
         return $this->sendResponse($group->students, 'Students added to group successfully.');
     }

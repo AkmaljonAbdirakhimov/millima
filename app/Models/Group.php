@@ -25,4 +25,9 @@ class Group extends Model
     {
         return $this->belongsTo(User::class, 'assistant_teacher_id');
     }
+
+    public function classes()
+    {
+        return $this->hasMany(GroupClass::class);
+    }
 }

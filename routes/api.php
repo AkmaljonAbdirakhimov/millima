@@ -27,4 +27,5 @@ Route::controller(GroupController::class)->middleware(['auth:sanctum', 'role:adm
     Route::post('/groups', 'store'); // Create group
     Route::post('/groups/{groupId}/students', 'addStudents'); // Add students to group
     Route::put('/groups/{groupId}', 'update'); // Update group (assign teachers, change name)
+    Route::delete('/groups/{id}', 'destroy');
 });

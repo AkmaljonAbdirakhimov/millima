@@ -119,4 +119,23 @@ class GroupController extends BaseController
 
         return $this->sendResponse($group, 'Group updated successfully.');
     }
+
+    /**
+     * Delete a specific group by its ID.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function destroy($id)
+    {
+        $group = Group::find($id);
+
+        if (!$group) {
+            return $this->sendError('Group not found.');
+        }
+
+        $group->delete();
+
+        return $this->sendResponse([], 'Group deleted successfully.');
+    }
 }

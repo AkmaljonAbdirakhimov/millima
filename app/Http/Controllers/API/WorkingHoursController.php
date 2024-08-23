@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\API\BaseController;
 use App\Models\WorkingHours;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class WorkingHoursController extends BaseController
@@ -15,33 +16,43 @@ class WorkingHoursController extends BaseController
         return $this->sendResponse($workingHours, 'Working hours retrieved successfully.');
     }
 
-    public function update(Request $request, $id)
+    public function bulkUpdate(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'is_working_day' => 'required|boolean',
-            'opening_time' => 'nullable|required_if:is_working_day,true|date_format:H:i',
-            'closing_time' => 'nullable|required_if:is_working_day,true|date_format:H:i|after:opening_time',
+            'working_hours' => 'required|array',
+            'working_hours.*.id' => 'required|exists:working_hours,id',
+            'working_hours.*.is_working_day' => 'required|boolean',
+            'working_hours.*.opening_time' => 'nullable|required_if:working_hours.*.is_working_day,true|date_format:H:i',
+            'working_hours.*.closing_time' => 'nullable|required_if:working_hours.*.is_working_day,true|date_format:H:i|after:working_hours.*.opening_time',
         ]);
 
         if ($validator->fails()) {
             return $this->sendError('Validation Error.', $validator->errors());
         }
 
-        $workingHours = WorkingHours::findOrFail($id);
+        DB::beginTransaction();
 
-        $data = $request->only(['is_working_day', 'opening_time', 'closing_time']);
+        try {
+            foreach ($request->working_hours as $workingHourData) {
+                $workingHour = WorkingHours::findOrFail($workingHourData['id']);
 
-        // If it's not a working day, set times to null
-        if (!$data['is_working_day']) {
-            $data['opening_time'] = null;
-            $data['closing_time'] = null;
+                $data = [
+                    'is_working_day' => $workingHourData['is_working_day'],
+                    'opening_time' => $workingHourData['is_working_day'] ? $workingHourData['opening_time'] : null,
+                    'closing_time' => $workingHourData['is_working_day'] ? $workingHourData['closing_time'] : null,
+                ];
+
+                $workingHour->update($data);
+            }
+
+            DB::commit();
+
+            $updatedWorkingHours = WorkingHours::with('day')->get();
+
+            return $this->sendResponse($updatedWorkingHours, 'Working hours updated successfully.');
+        } catch (\Exception $e) {
+            DB::rollback();
+            return $this->sendError('Update Error.', $e->getMessage());
         }
-
-        $workingHours->update($data);
-
-        // Load the related day
-        $workingHours->load('day');
-
-        return $this->sendResponse($workingHours, 'Working hours updated successfully.');
     }
 }

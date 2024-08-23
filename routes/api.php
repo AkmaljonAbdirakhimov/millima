@@ -30,7 +30,7 @@ Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
     Route::delete('/groups/{id}', [GroupController::class, 'destroy']);
 
     Route::get('/working-hours',  [WorkingHoursController::class, 'index']);
-    Route::put('/working-hours/{id}', [WorkingHoursController::class, 'update']);
+    Route::put('/working-hours', [WorkingHoursController::class, 'bulkUpdate']);
 
     Route::apiResource('rooms', RoomController::class);
 

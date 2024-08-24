@@ -30,6 +30,7 @@ class RoomController extends BaseController
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255|unique:rooms',
+            'description' => 'nullable|string',
             'capacity' => 'required|integer|min:1',
         ]);
 
@@ -72,6 +73,7 @@ class RoomController extends BaseController
 
         $validator = Validator::make($request->all(), [
             'name' => 'string|max:255|unique:rooms,name,' . $id,
+            'description' => 'nullable|string',
             'capacity' => 'integer|min:1',
         ]);
 

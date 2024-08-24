@@ -2,13 +2,12 @@
 
 namespace App\Http\Controllers\API;
 
-use App\Http\Controllers\API\BaseController;
+use App\Http\Controllers\API\BaseController as BaseController;
 use App\Models\Room;
 use App\Models\Group;
 use App\Models\GroupClass;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-use Carbon\Carbon;
 
 class TimetableController extends BaseController
 {
@@ -25,14 +24,10 @@ class TimetableController extends BaseController
         }
 
         $dayId = $request->day_id;
-        $startTime = Carbon::parse($request->start_time);
-        $endTime = Carbon::parse($request->end_time);
+        $startTime = $request->start_time;
+        $endTime = $request->end_time;
 
-        $availableRooms = Room::whereHas('availableHours', function ($query) use ($dayId, $startTime, $endTime) {
-            $query->where('day_id', $dayId)
-                ->where('start_time', '<=', $startTime)
-                ->where('end_time', '>=', $endTime);
-        })->whereDoesntHave('classes', function ($query) use ($dayId, $startTime, $endTime) {
+        $availableRooms = Room::whereDoesntHave('groupClasses', function ($query) use ($dayId, $startTime, $endTime) {
             $query->where('day_id', $dayId)
                 ->where(function ($q) use ($startTime, $endTime) {
                     $q->whereBetween('start_time', [$startTime, $endTime])
@@ -68,13 +63,13 @@ class TimetableController extends BaseController
 
     public function getGroupTimetable($groupId)
     {
-        $group = Group::with(['classes.room', 'classes.day'])->find($groupId);
+        $group = Group::with(['groupClasses.room', 'groupClasses.day'])->find($groupId);
 
         if (!$group) {
             return $this->sendError('Group not found.');
         }
 
-        $timetable = $group->classes->groupBy('day.name')->map(function ($classes) {
+        $timetable = $group->groupClasses->groupBy('day.name')->map(function ($classes) {
             return $classes->map(function ($class) {
                 return [
                     'room' => $class->room->name,

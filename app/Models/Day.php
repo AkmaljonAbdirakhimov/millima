@@ -15,4 +15,9 @@ class Day extends Model
     {
         return $this->hasOne(WorkingHours::class);
     }
+
+    public function classes()
+    {
+        return $this->hasMany(GroupClass::class);
+    }
 }

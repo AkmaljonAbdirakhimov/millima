@@ -34,7 +34,7 @@ Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
 
     Route::apiResource('rooms', RoomController::class);
 
-    Route::get('available-rooms', [TimetableController::class, 'getAvailableRooms']);
-    Route::post('group-classes', [TimetableController::class, 'createGroupClass']);
-    Route::get('group-timetable/{groupId}', [TimetableController::class, 'getGroupTimetable']);
+    Route::get('/available-rooms', [TimetableController::class, 'getAvailableRooms']);
+    Route::post('/group-classes', [TimetableController::class, 'createGroupClass']);
+    Route::get('/group-timetable/{groupId}', [TimetableController::class, 'getGroupTimetable']);
 });

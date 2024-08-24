@@ -11,8 +11,8 @@ class Room extends Model
 
     protected $fillable = ['name', 'description', 'capacity'];
 
-    public function availableHours()
+    public function classes()
     {
-        return $this->hasMany(RoomAvailableHour::class);
+        return $this->hasMany(GroupClass::class);
     }
 }

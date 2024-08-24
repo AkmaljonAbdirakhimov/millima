@@ -27,7 +27,7 @@ class TimetableController extends BaseController
         $startTime = $request->start_time;
         $endTime = $request->end_time;
 
-        $availableRooms = Room::whereDoesntHave('groupClasses', function ($query) use ($dayId, $startTime, $endTime) {
+        $availableRooms = Room::whereDoesntHave('classes', function ($query) use ($dayId, $startTime, $endTime) {
             $query->where('day_id', $dayId)
                 ->where(function ($q) use ($startTime, $endTime) {
                     $q->whereBetween('start_time', [$startTime, $endTime])
@@ -63,13 +63,13 @@ class TimetableController extends BaseController
 
     public function getGroupTimetable($groupId)
     {
-        $group = Group::with(['groupClasses.room', 'groupClasses.day'])->find($groupId);
+        $group = Group::with(['classes.room', 'classes.day'])->find($groupId);
 
         if (!$group) {
             return $this->sendError('Group not found.');
         }
 
-        $timetable = $group->groupClasses->groupBy('day.name')->map(function ($classes) {
+        $timetable = $group->classes->groupBy('day.name')->map(function ($classes) {
             return $classes->map(function ($class) {
                 return [
                     'room' => $class->room->name,

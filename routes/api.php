@@ -3,6 +3,7 @@
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\GroupController;
 use App\Http\Controllers\API\RoomController;
+use App\Http\Controllers\API\SubjectController;
 use App\Http\Controllers\API\TeacherController;
 use App\Http\Controllers\API\TimetableController;
 use App\Http\Controllers\API\UserController;
@@ -39,6 +40,7 @@ Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
     Route::put('/working-hours', [WorkingHoursController::class, 'bulkUpdate']);
 
     Route::apiResource('rooms', RoomController::class);
+    Route::apiResource('subjects', SubjectController::class);
 
     Route::get('/available-rooms', [TimetableController::class, 'getAvailableRooms']);
     Route::post('/group-classes', [TimetableController::class, 'createGroupClass']);

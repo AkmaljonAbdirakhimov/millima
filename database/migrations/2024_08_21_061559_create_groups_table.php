@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('name');
             $table->foreignId('main_teacher_id')->nullable()->constrained('users')->onDelete('set null');
             $table->foreignId('assistant_teacher_id')->nullable()->constrained('users')->onDelete('set null');
+            $table->foreignId('subject_id')->nullable()->constrained('subjects')->onDelete('set null');
             $table->timestamps();
         });
     }

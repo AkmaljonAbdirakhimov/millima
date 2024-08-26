@@ -55,13 +55,14 @@ class GroupController extends BaseController
             'name' => 'required|string|max:255',
             'main_teacher_id' => 'nullable|exists:users,id',
             'assistant_teacher_id' => 'nullable|exists:users,id',
+            'subject_id' => 'required|exists:subjects,id',
         ]);
 
         if ($validator->fails()) {
             return $this->sendError('Validation Error.', $validator->errors());
         }
 
-        $group = Group::create($request->only(['name', 'main_teacher_id', 'assistant_teacher_id']));
+        $group = Group::create($request->only(['name', 'main_teacher_id', 'assistant_teacher_id', 'subject_id']));
 
         return $this->sendResponse($group, 'Group created successfully.');
     }
@@ -103,6 +104,7 @@ class GroupController extends BaseController
             'name' => 'sometimes|string|max:255',
             'main_teacher_id' => 'nullable|exists:users,id',
             'assistant_teacher_id' => 'nullable|exists:users,id',
+            'subject_id' => 'sometimes|required|exists:subjects,id',
         ]);
 
         if ($validator->fails()) {
@@ -115,7 +117,7 @@ class GroupController extends BaseController
             return $this->sendError('Group not found.');
         }
 
-        $group->update($request->only(['name', 'main_teacher_id', 'assistant_teacher_id']));
+        $group->update($request->only(['name', 'main_teacher_id', 'assistant_teacher_id', 'subject_id']));
 
         return $this->sendResponse($group, 'Group updated successfully.');
     }

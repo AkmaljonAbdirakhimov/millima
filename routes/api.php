@@ -3,6 +3,7 @@
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\GroupController;
 use App\Http\Controllers\API\RoomController;
+use App\Http\Controllers\API\TeacherController;
 use App\Http\Controllers\API\TimetableController;
 use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\API\WorkingHoursController;
@@ -18,6 +19,11 @@ Route::controller(UserController::class)->middleware(['auth:sanctum'])->group(fu
     Route::get('/user', 'showProfile');
     Route::post('/profile/update', 'updateProfile');
     Route::get('/student/groups', 'getStudentGroups');
+});
+
+
+Route::controller(TeacherController::class)->middleware(['auth:sanctum', 'role:teacher'])->group(function () {
+    Route::get('/teacher/groups', 'getTeacherGroups');
 });
 
 Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {

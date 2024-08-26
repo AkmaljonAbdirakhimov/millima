@@ -4,7 +4,6 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\API\BaseController as BaseController;
 use App\Models\Group;
-use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Validator;
@@ -20,7 +19,7 @@ class GroupController extends BaseController
      */
     public function index(Request $request)
     {
-        $query = Group::with(['mainTeacher', 'assistantTeacher', 'students', 'classes']);
+        $query = Group::with(['mainTeacher', 'assistantTeacher', 'students', 'classes', 'subject']);
 
         // Dynamically apply filters
         foreach ($request->all() as $field => $value) {

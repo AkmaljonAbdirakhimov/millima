@@ -109,7 +109,14 @@ class UserController extends BaseController
     public function getStudentGroups()
     {
         // Load only the groups along with main and assistant teachers for the authenticated student
-        $user = Auth::user()->load(['groups.mainTeacher', 'groups.assistantTeacher', 'groups.students', 'groups.classes', 'groups.subject']);
+        $user = Auth::user()->load([
+            'groups.mainTeacher', 
+            'groups.assistantTeacher', 
+            'groups.students', 
+            'groups.subject',   
+            'groups.classes.day',
+            'groups.classes.room'
+        ]);
 
         // You can customize the response to return only the group data if desired
         $groups = $user->groups;

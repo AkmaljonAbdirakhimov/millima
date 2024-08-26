@@ -12,17 +12,17 @@ use Illuminate\Support\Facades\Validator;
 class TeacherController extends BaseController
 {
     /**
-     * Retrieve the groups of the authenticated student.
+     * Retrieve the groups of the authenticated teacher.
      *
      * @return \Illuminate\Http\JsonResponse
      */
     public function getTeacherGroups()
     {
-        // Load only the groups along with main and assistant teachers for the authenticated teacher
-        $user = Auth::user()->load(['teacherGroups.mainTeacher', 'teacherGroups.assistantTeacher', 'teacherGroups.students', 'teacherGroups.classes']);
+        // Get the authenticated user
+        $user = Auth::user();
 
-        // You can customize the response to return only the group data if desired
-        $groups = $user->groups;
+        // Load the groups where the user is the main teacher
+        $groups = $user->teacherGroups()->with(['mainTeacher', 'assistantTeacher', 'students', 'classes'])->get();
 
         return $this->sendResponse($groups, 'Teacher groups retrieved successfully.');
     }

@@ -20,7 +20,7 @@ class GroupController extends BaseController
      */
     public function index(Request $request)
     {
-        $query = Group::with(['mainTeacher', 'assistantTeacher', 'students']);
+        $query = Group::with(['mainTeacher', 'assistantTeacher', 'students', 'classes']);
 
         // Dynamically apply filters
         foreach ($request->all() as $field => $value) {

@@ -93,22 +93,16 @@ class AuthController extends BaseController
     public function socialLogin(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'provider' => 'required|in:google,facebook,github',
-            'provider_id' => 'required',
             'name' => 'required',
             'email' => 'required|email',
-            'avatar' => 'nullable|url',
         ]);
 
         if ($validator->fails()) {
             return $this->sendError('Validation Error.', $validator->errors());
         }
 
-        $provider = $request->provider;
-        $providerId = $request->provider_id;
         $name = $request->name;
         $email = $request->email;
-        $avatar = $request->avatar;
 
         $user = User::where('email', $email)->first();
 
@@ -120,19 +114,12 @@ class AuthController extends BaseController
                 'password' => bcrypt(Str::random(16)),
             ]);
 
-            $user->role()->associate(Role::where('name', 'student')->first());
+            if (!isset($input['role_id'])) {
+                $input['role_id'] = Role::where('name', 'student')->first()->id;
+            }
+            $user->role()->associate(Role::find($input['role_id']));
             $user->save();
         }
-
-        $user->providers()->updateOrCreate(
-            [
-                'provider' => $provider,
-                'provider_id' => $providerId,
-            ],
-            [
-                'avatar' => $avatar
-            ]
-        );
 
         $success['token'] = $user->createToken('authToken')->plainTextToken;
         $success['name'] = $user->name;

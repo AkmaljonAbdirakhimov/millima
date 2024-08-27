@@ -8,6 +8,7 @@ use App\Models\Role;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 
 class AuthController extends BaseController
 {
@@ -81,5 +82,61 @@ class AuthController extends BaseController
         $request->user()->currentAccessToken()->delete();
 
         return $this->sendResponse([], 'User logged out from all devices successfully.');
+    }
+
+    /**
+     * Social login API
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function socialLogin(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'provider' => 'required|in:google,facebook,github',
+            'provider_id' => 'required',
+            'name' => 'required',
+            'email' => 'required|email',
+            'avatar' => 'nullable|url',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->sendError('Validation Error.', $validator->errors());
+        }
+
+        $provider = $request->provider;
+        $providerId = $request->provider_id;
+        $name = $request->name;
+        $email = $request->email;
+        $avatar = $request->avatar;
+
+        $user = User::where('email', $email)->first();
+
+        if (!$user) {
+            $user = User::create([
+                'name' => $name,
+                'email' => $email,
+                'email_verified_at' => now(),
+                'password' => bcrypt(Str::random(16)),
+            ]);
+
+            $user->role()->associate(Role::where('name', 'student')->first());
+            $user->save();
+        }
+
+        $user->providers()->updateOrCreate(
+            [
+                'provider' => $provider,
+                'provider_id' => $providerId,
+            ],
+            [
+                'avatar' => $avatar
+            ]
+        );
+
+        $success['token'] = $user->createToken('authToken')->plainTextToken;
+        $success['name'] = $user->name;
+
+        return $this->sendResponse($success, 'User logged in successfully.');
     }
 }

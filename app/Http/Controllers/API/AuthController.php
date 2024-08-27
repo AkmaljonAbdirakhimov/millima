@@ -83,5 +83,3 @@ class AuthController extends BaseController
         return $this->sendResponse([], 'User logged out from all devices successfully.');
     }
 }
-
-// create crud api for rooms. room has id, name, and available hours

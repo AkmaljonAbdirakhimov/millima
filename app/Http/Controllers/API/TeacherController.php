@@ -22,7 +22,7 @@ class TeacherController extends BaseController
         $user = Auth::user();
 
         // Load the groups where the user is the main teacher
-        $groups = $user->teacherGroups()->with(['mainTeacher', 'assistantTeacher', 'students', 'classes'])->get();
+        $groups = $user->teacherGroups()->with(['mainTeacher', 'assistantTeacher', 'students', 'classes.day', 'classes.room'])->get();
 
         return $this->sendResponse($groups, 'Teacher groups retrieved successfully.');
     }

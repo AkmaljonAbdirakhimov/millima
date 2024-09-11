@@ -1,0 +1,9 @@
+[{
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.example.paymentDemolito",
+      "sha256_cert_fingerprints":
+      ["72:BF:67:55:93:AF:A0:AD:43:EF:D2:D6:4F:24:69:1E:D0:B0:53:BE:8B:9E:31:AB:0F:82:D2:17:19:0F:1F:0D"]
+    }
+  }]

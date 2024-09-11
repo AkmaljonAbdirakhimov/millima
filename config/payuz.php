@@ -11,7 +11,7 @@ return [
     'control_panel' => [
         //middleware value types: array, string, null
         //'web' is optional if middleware is empty or null it will be added automatically
-        'middleware' => "web",
+        'middleware' => "auth",
     ],
     'multi_transaction' => true,
 ];
